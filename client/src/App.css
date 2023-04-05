@@ -6,6 +6,20 @@ h1 {
   font-size: 24px;
 }
 
+.users, .movies {
+  border: 1px solid black;
+  margin: 16px;
+}
+
+.user, .movie {
+  border: 1px solid black;
+  margin: 20px;
+}
+
+h3 {
+  margin: 4px;
+}
+
 .App {
   text-align: center;
 }

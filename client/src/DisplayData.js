@@ -37,7 +37,14 @@ const CREATE_USER_MUTATION = gql`
   mutation CreateUser($input: CreateUserInput!) {
     createUser(input: $input) {
       name
-      username
+      id
+    }
+  }
+`;
+
+const DELETE_USER_MUTATION = gql`
+  mutation DeleteUser($id: ID!) {
+    deleteUser(id: $id) {
       id
     }
   }
@@ -49,12 +56,14 @@ export default function DisplayData() {
   const [username, setUsername] = useState("");
   const [age, setAge] = useState(0);
   const [nationality, setNationality] = useState("");
+  const [id, setID] = useState(0);
   const { data, loading, refetch } = useQuery(QUERY_ALL_USERS);
   const { data: movieData } = useQuery(QUERY_ALL_MOVIES);
   const [fetchMovie, { data: movieSearchedData, error: movieSearchedError }] =
     useLazyQuery(GET_MOVIE_BY_NAME);
 
   const [createUser] = useMutation(CREATE_USER_MUTATION);
+  const [deleteUser] = useMutation(DELETE_USER_MUTATION);
 
   if (loading) {
     return <h1>Data is loading...</h1>;
@@ -102,31 +111,57 @@ export default function DisplayData() {
           Create User
         </button>
       </div>
-      {data &&
-        data.users.map((user) => {
-          return (
-            <div key={user.id}>
-              <h1>Name: {user.name}</h1>
-              <h1>Username: {user.username}</h1>
-              <h1>Age: {user.age}</h1>
-              <h1>Nationality: {user.nationality}</h1>
-            </div>
-          );
-        })}
-      {movieData &&
-        movieData.movies.map((movie) => {
-          return (
-            <div key={movie.id}>
-              <h1>Movie Name: {movie.name}</h1>
-              <h1>
-                {movie.isInTheaters
-                  ? "You can see the movie in theaters"
-                  : "You can't see in theaters"}
-              </h1>
-              <h1>Year: {movie.yearOfPublication}</h1>
-            </div>
-          );
-        })}
+      <div>
+        <input
+          type="number"
+          placeholder="Enter User ID"
+          onChange={(e) => {
+            setID(Number(e.target.value));
+          }}
+        />
+        <button
+          onClick={() => {
+            deleteUser({
+              variables: { id },
+            });
+            refetch();
+          }}
+        >
+          Delete User By ID
+        </button>
+      </div>
+      <div className="users">
+        <h1>Users:</h1>
+        {data &&
+          data.users.map((user) => {
+            return (
+              <div className="user" key={user.id}>
+                <h3>Name: {user.name}</h3>
+                <h3>Username: {user.username}</h3>
+                <h3>ID: {user.id}</h3>
+                <h3>Age: {user.age}</h3>
+                <h3>Nationality: {user.nationality}</h3>
+              </div>
+            );
+          })}
+      </div>
+      <div className="movies">
+        <h1>Movies:</h1>
+        {movieData &&
+          movieData.movies.map((movie) => {
+            return (
+              <div className="movie" key={movie.id}>
+                <h3>Movie Name: {movie.name}</h3>
+                <h3>
+                  {movie.isInTheaters
+                    ? "You can see the movie in theaters"
+                    : "You can't see in theaters"}
+                </h3>
+                <h3>Year: {movie.yearOfPublication}</h3>
+              </div>
+            );
+          })}
+      </div>
       <div>
         <input
           type="text"
@@ -143,13 +178,13 @@ export default function DisplayData() {
         <div>
           {movieSearchedData && (
             <div>
-              <h1>Movie Name: {movieSearchedData.movie.name}</h1>
-              <h1>
+              <h3>Movie Name: {movieSearchedData.movie.name}</h3>
+              <h3>
                 Year Of Publication: {movieSearchedData.movie.yearOfPublication}
-              </h1>
+              </h3>
             </div>
           )}
-          {movieSearchedError && <h1>There was an error fetching data</h1>}
+          {movieSearchedError && <h3>There was an error fetching data</h3>}
         </div>
       </div>
     </>
